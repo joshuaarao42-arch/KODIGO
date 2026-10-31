@@ -21,8 +21,6 @@ Designed with a clean interface and intuitive controls, KODIGO makes QR code cre
 ![image alt](https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134800.png?raw=true)
 ![image alt](https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134819.png?raw=true)
 
-*Application screenshots coming soon.*
-
 ## 🛠️ Built With
 
 | Technology | Purpose |
