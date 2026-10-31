@@ -18,7 +18,8 @@ Designed with a clean interface and intuitive controls, KODIGO makes QR code cre
 
 ## 🖥️ Preview
 
-<!-- Add application screenshots here -->
+![image alt](https://github.com/joshuaarao42-arch/ACITIVTY-LOGGER/blob/main/IMAGES/Screenshot%202026-10-28%20172142.png?raw=true)
+![image alt](https://github.com/joshuaarao42-arch/ACITIVTY-LOGGER/blob/main/IMAGES/Screenshot%202026-10-28%20172142.png?raw=true)
 
 *Application screenshots coming soon.*
 
