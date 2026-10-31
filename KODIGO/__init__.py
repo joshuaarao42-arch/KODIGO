@@ -1,0 +1,1 @@
+"""KODIGO – QR Code Studio."""
