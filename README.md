@@ -149,8 +149,6 @@ Every contribution, whether big or small, is appreciated!
 
 **Joshua C. Arao - 1st year ComSci student**
 
-Creator and Developer of KODIGO.
-
 ## 📄 License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more information.
