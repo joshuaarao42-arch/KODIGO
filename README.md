@@ -146,7 +146,7 @@ Every contribution, whether big or small, is appreciated!
 
 ## 👨‍💻 Author
 
-**Joshua C. Arao - 1st year ComSci student**
+**Hi, I’m Joshua Arao, a Computer Science student at the University of Science and Technology of Southern Philippines (USTP). I enjoy building clean, polished software and learning something new with every project.**
 
 ## 📄 License
 
