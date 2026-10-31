@@ -1,90 +1,164 @@
 # KODIGO — QR Code Studio
 
-Create polished, customizable QR codes from a simple desktop app. KODIGO supports links, plain text, contact cards, and Wi-Fi credentials, with a live preview and PNG export.
+**Create. Customize. Connect.**
 
-## Features
+KODIGO is a customizable QR Code Studio built with Python. It allows users to generate, personalize, preview, and export QR codes through a modern desktop application.
 
-- **Four QR types:** URLs, text, vCards, and Wi-Fi network credentials
-- **Live preview:** see changes as you edit your content or style
-- **Personalized appearance:** choose colors, module shapes, and an optional center logo
-- **Readable output:** contrast checking and automatic high error correction when a logo is used
-- **High quality PNGs:** export at Standard, High, or Ultra resolution with 300 DPI metadata
-- **Saved history:** search previous codes, reopen them, export again, or delete them
-- **Light and dark themes:** switch the app appearance from the sidebar
+Designed with a clean interface and intuitive controls, KODIGO makes QR code creation simple and convenient.
 
-## Preview
+## ✨ Features
 
-> Add a screenshot of the app here when one is available.
+- **Multiple QR Types** — Generate QR codes for URLs, plain text, contact cards (vCards), and Wi-Fi credentials.
+- **Live Preview** — See your QR code update as you modify its content and appearance.
+- **Customizable Designs** — Personalize QR colors, module shapes, and add custom center logos.
+- **High-Quality Export** — Export QR codes as PNG images in Standard, High, or Ultra resolution with 300 DPI metadata.
+- **QR Code History** — Search, reopen, export, and delete previously generated QR codes.
+- **Light & Dark Themes** — Switch between application themes to suit your preference.
+- **Readability Protection** — Contrast checking and automatic high error correction when adding logos.
 
-## Requirements
+## 🖥️ Preview
+
+<!-- Add application screenshots here -->
+
+*Application screenshots coming soon.*
+
+## 🛠️ Built With
+
+| Technology | Purpose |
+|---|---|
+| Python | Core programming language |
+| CustomTkinter | Desktop graphical interface |
+| qrcode | QR code generation |
+| Pillow (PIL) | Image processing |
+| SQLite | Local QR code history |
+| PyInstaller | Windows executable packaging |
+
+## 📦 Installation
+
+### Requirements
 
 - Python 3
-- Windows for the included `.exe` build script
+- Windows (for the included executable build script)
 
-## Run from source
+### 1. Clone the Repository
 
-Open PowerShell in this folder and create a virtual environment:
+```bash
+git clone https://github.com/joshuaarao42-arch/KODIGO.git
+```
 
-```powershell
+### 2. Navigate to the Project Directory
+
+```bash
+cd KODIGO
+```
+
+### 3. Create a Virtual Environment
+
+```bash
 py -m venv .venv
 ```
 
-Install dependencies and start the app:
+### 4. Install Dependencies
 
-```powershell
+```bash
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+### 5. Run the Application
+
+```bash
 .\.venv\Scripts\python.exe main.py
 ```
 
-If the `py` command is unavailable, install Python from [python.org](https://www.python.org/downloads/) and reopen PowerShell.
+## 🏗️ Build as a Windows Application
 
-### Optional: use uv
+KODIGO can be packaged into a standalone Windows application using the included build script.
 
-If [uv](https://docs.astral.sh/uv/) is installed and can access the network:
+Run:
 
-```powershell
-uv venv .venv
-uv pip install --python .venv\Scripts\python.exe -r requirements.txt
-uv run --python .venv\Scripts\python.exe main.py
+```bash
+build_exe.bat
 ```
 
-## Build the Windows app
-
-With Python installed, run `build_exe.bat` from this folder. The script installs the requirements and PyInstaller, generates the app icon, and builds the executable. The output is:
+Once the build process is complete, the executable will be available at:
 
 ```text
 dist/KODIGO/KODIGO.exe
 ```
 
-## Keyboard shortcut
+## ⌨️ Keyboard Shortcuts
 
 | Shortcut | Action |
-| --- | --- |
-| `Ctrl+S` | Export the current QR code |
+|---|---|
+| `Ctrl + S` | Export current QR code |
 
-## Data and privacy
-
-QR history is stored locally in SQLite at `%APPDATA%\KODIGO\history.db` on Windows. The app does not need an account or a hosted service to create QR codes.
-
-## Project structure
+## 📁 Project Structure
 
 ```text
-main.py                 Application entry point
-make_icon.py            Generates the Windows application icon
-build_exe.bat           Builds the Windows executable
-requirements.txt        Python package requirements
 KODIGO/
-  app.py                Main window and navigation
-  config.py             App settings and user data paths
-  database.py           Local SQLite history
-  payloads.py           URL, text, vCard, and Wi-Fi payloads
-  qr_engine.py          QR generation, styling, and PNG export
-  ui/                   Screens, forms, widgets, and theme
+│
+├── KODIGO/
+│   ├── app.py
+│   ├── config.py
+│   ├── database.py
+│   ├── payloads.py
+│   ├── qr_engine.py
+│   │
+│   └── ui/
+│       ├── Screens
+│       ├── Forms
+│       ├── Widgets
+│       └── Theme
+│
+├── main.py
+├── make_icon.py
+├── build_exe.bat
+├── requirements.txt
+├── LICENSE
+└── README.md
 ```
 
-## Dependencies
+## 🔒 Data & Privacy
 
-- [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) — desktop interface
-- [qrcode](https://github.com/lincolnloop/python-qrcode) — QR code generation
-- [Pillow](https://python-pillow.org/) — image processing and export
+KODIGO stores QR code history locally using SQLite.
 
+On Windows, the database is stored at:
+
+```text
+%APPDATA%\KODIGO\history.db
+```
+
+No account or hosted service is required to generate QR codes.
+
+## 🤝 Contributions
+
+Contributions are welcome!
+
+If you have ideas for new features, improvements, or bug fixes, feel free to contribute. You can help improve KODIGO by:
+
+- Reporting bugs or unexpected behavior through GitHub Issues.
+- Suggesting new features and enhancements.
+- Submitting pull requests with improvements or fixes.
+- Improving documentation and overall usability.
+
+Please ensure that your changes are tested and clearly explained before submitting a pull request.
+
+Every contribution, whether big or small, is appreciated!
+
+## 👨‍💻 Author
+
+**Joshua C. Arao - 1st year ComSci student**
+
+Creator and Developer of KODIGO.
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more information.
+
+---
+
+<p align="center">
+  **KODIGO — Create. Customize. Connect.**
+  <br/>
+  Made with Python.
+</p>
