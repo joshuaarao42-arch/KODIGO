@@ -1,13 +1,15 @@
 from __future__ import annotations
 import base64,binascii,json,os,tempfile
 from io import BytesIO
+from pathlib import Path
 from urllib.error import HTTPError,URLError
 from urllib.request import Request,urlopen
 from flask import Flask,jsonify,render_template,request
 from PIL import Image,UnidentifiedImageError
 from KODIGO import payloads,qr_engine
 from KODIGO.qr_engine import QRStyle
-app=Flask(__name__,template_folder="templates",static_folder="static")
+ROOT=Path(__file__).resolve().parents[1]
+app=Flask(__name__,template_folder=str(ROOT/"templates"),static_folder=None)
 app.config["MAX_CONTENT_LENGTH"]=4*1024*1024
 KINDS={"url","text","contact","wifi"}
 @app.get("/")
