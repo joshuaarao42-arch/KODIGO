@@ -78,7 +78,7 @@ def account():
 def signup():
  if not app.secret_key: return jsonify(error="Session security is not configured."),503
  data=request.get_json(silent=True) or {}; email=str(data.get("email","")).strip().lower(); password=str(data.get("password",""))
- if not re.fullmatch(r"[^\\s@]+@[^\\s@]+\\.[^\\s@]+",email) or len(email)>254: return jsonify(error="Enter a valid email address."),400
+ if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+",email) or len(email)>254: return jsonify(error="Enter a valid email address."),400
  if len(password)<10 or len(password)>128: return jsonify(error="Use a password between 10 and 128 characters."),400
  try:
   ensure_schema()
