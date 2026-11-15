@@ -102,7 +102,7 @@ Run build_exe.bat. The executable is created at dist/KODIGO/KODIGO.exe.
 ## Project structure
 
     KODIGO/
-    ├── api/
+    ├── app.py\n    ├── api/
     │   ├── index.py
     │   ├── templates/index.html
     │   └── static/
