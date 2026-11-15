@@ -4,13 +4,13 @@ from io import BytesIO
 from pathlib import Path
 from urllib.error import HTTPError,URLError
 from urllib.request import Request,urlopen
-from flask import Flask,jsonify,render_template,request,session
+from flask import Flask,jsonify,render_template,request,session,redirect
 from PIL import Image,UnidentifiedImageError
 from werkzeug.security import generate_password_hash,check_password_hash
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.errors import UniqueViolation
-import re
+import re,hashlib,secrets
 from KODIGO import payloads,qr_engine
 from KODIGO.qr_engine import QRStyle
 ROOT=Path(__file__).resolve().parents[1]
@@ -27,15 +27,38 @@ def ensure_schema():
  global _schema_ready
  if _schema_ready: return
  with db_connection() as conn:
-  conn.execute("""CREATE TABLE IF NOT EXISTS kod_users (id BIGSERIAL PRIMARY KEY,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+  conn.execute("""CREATE TABLE IF NOT EXISTS kod_users (id BIGSERIAL PRIMARY KEY,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,email_verified BOOLEAN NOT NULL DEFAULT FALSE,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+  conn.execute("ALTER TABLE kod_users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN NOT NULL DEFAULT FALSE")
+  conn.execute("""CREATE TABLE IF NOT EXISTS kod_email_verifications (id BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES kod_users(id) ON DELETE CASCADE,token_hash TEXT NOT NULL UNIQUE,expires_at TIMESTAMPTZ NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+  conn.execute("CREATE INDEX IF NOT EXISTS kod_email_verifications_user_idx ON kod_email_verifications(user_id)")
   conn.execute("""CREATE TABLE IF NOT EXISTS kod_qr_codes (id BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES kod_users(id) ON DELETE CASCADE,title TEXT NOT NULL,kind TEXT NOT NULL,image TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
   conn.execute("CREATE INDEX IF NOT EXISTS kod_qr_codes_user_created_idx ON kod_qr_codes(user_id,created_at DESC)")
  _schema_ready=True
+
+def send_verification_email(email,token):
+ api_key=os.environ.get("RESEND_API_KEY"); sender=os.environ.get("EMAIL_FROM")
+ if not api_key or not sender: raise RuntimeError("Email delivery is not configured.")
+ base=os.environ.get("APP_BASE_URL",request.url_root.rstrip("/")).rstrip("/")
+ link=base+"/api/verify?token="+token
+ body={"from":sender,"to":[email],"subject":"Verify your KODIGO account","html":f"""<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:32px;color:#17182b"><h1 style="margin-bottom:8px">Welcome to KODIGO</h1><p>Confirm your email address to activate your account.</p><p style="margin:28px 0"><a href="{link}" style="background:#5146d8;color:#fff;padding:14px 22px;border-radius:10px;text-decoration:none;font-weight:bold">Verify email address</a></p><p>This link expires in 30 minutes. If you did not create a KODIGO account, you can ignore this email.</p><p style="color:#777;font-size:12px">KODIGO · Create. Customize. Connect.</p></div>"""}
+ req=Request("https://api.resend.com/emails",data=json.dumps(body).encode(),headers={"Authorization":"Bearer "+api_key,"Content-Type":"application/json"},method="POST")
+ with urlopen(req,timeout=15) as response: response.read()
+def create_verification(user_id,email):
+ token=secrets.token_urlsafe(32); digest=hashlib.sha256(token.encode()).hexdigest()
+ with db_connection() as conn:
+  conn.execute("DELETE FROM kod_email_verifications WHERE user_id=%s",(user_id,))
+  conn.execute("INSERT INTO kod_email_verifications(user_id,token_hash,expires_at) VALUES(%s,%s,NOW()+INTERVAL '30 minutes')",(user_id,digest))
+ send_verification_email(email,token)
+
 def current_user():
  ensure_schema()
  uid=session.get("user_id")
  if not uid: return None
- with db_connection() as conn: return conn.execute("SELECT id,email FROM kod_users WHERE id=%s",(uid,)).fetchone()
+ with db_connection() as conn:
+  user=conn.execute("SELECT id,email,email_verified FROM kod_users WHERE id=%s",(uid,)).fetchone()
+ if user and not user["email_verified"]:
+  session.clear(); return None
+ return user
 @app.after_request
 def security_headers(response):
  response.headers.setdefault("X-Content-Type-Options","nosniff")
@@ -55,17 +78,49 @@ def account():
 def signup():
  if not app.secret_key: return jsonify(error="Session security is not configured."),503
  data=request.get_json(silent=True) or {}; email=str(data.get("email","")).strip().lower(); password=str(data.get("password",""))
- if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+",email) or len(email)>254: return jsonify(error="Enter a valid email address."),400
+ if not re.fullmatch(r"[^\\s@]+@[^\\s@]+\\.[^\\s@]+",email) or len(email)>254: return jsonify(error="Enter a valid email address."),400
  if len(password)<10 or len(password)>128: return jsonify(error="Use a password between 10 and 128 characters."),400
  try:
   ensure_schema()
   with db_connection() as conn:
    row=conn.execute("INSERT INTO kod_users(email,password_hash) VALUES(%s,%s) RETURNING id,email",(email,generate_password_hash(password))).fetchone()
-  session.clear(); session["user_id"]=row["id"]; session.permanent=True
-  return jsonify(user={"id":row["id"],"email":row["email"]}),201
- except UniqueViolation: return jsonify(error="An account with that email already exists. Please log in."),409
+  sent=True
+  try: create_verification(row["id"],row["email"])
+  except Exception:
+   sent=False; app.logger.exception("Verification email could not be sent")
+  return jsonify(verificationRequired=True,emailSent=sent,email=row["email"],message="Check your inbox for a verification link." if sent else "Your account was created, but email delivery is not configured yet."),201
+ except UniqueViolation: return jsonify(error="An account with that email already exists. Please log in or request a new verification email."),409
  except Exception:
   app.logger.exception("Signup failed"); return jsonify(error="Couldn't create your account. Please try again."),503
+
+@app.post("/api/resend-verification")
+def resend_verification():
+ data=request.get_json(silent=True) or {}; email=str(data.get("email","")).strip().lower()
+ try:
+  ensure_schema()
+  with db_connection() as conn: user=conn.execute("SELECT id,email,email_verified FROM kod_users WHERE email=%s",(email,)).fetchone()
+  if user and not user["email_verified"]:
+   create_verification(user["id"],user["email"])
+  return jsonify(ok=True,message="If that account needs verification, a new email has been sent.")
+ except Exception:
+  app.logger.exception("Resending verification email failed")
+  return jsonify(error="Couldn't send the verification email. Please try again later."),503
+
+@app.get("/api/verify")
+def verify_email():
+ token=request.args.get("token","")
+ if not token or len(token)>200: return redirect("/?verified=0")
+ digest=hashlib.sha256(token.encode()).hexdigest()
+ try:
+  ensure_schema()
+  with db_connection() as conn:
+   row=conn.execute("SELECT user_id FROM kod_email_verifications WHERE token_hash=%s AND expires_at>NOW()",(digest,)).fetchone()
+   if not row: return redirect("/?verified=0")
+   conn.execute("UPDATE kod_users SET email_verified=TRUE WHERE id=%s",(row["user_id"],))
+   conn.execute("DELETE FROM kod_email_verifications WHERE user_id=%s",(row["user_id"],))
+  return redirect("/?verified=1")
+ except Exception:
+  app.logger.exception("Email verification failed"); return redirect("/?verified=0")
 
 @app.post("/api/login")
 def login():
@@ -73,8 +128,9 @@ def login():
  data=request.get_json(silent=True) or {}; email=str(data.get("email","")).strip().lower(); password=str(data.get("password",""))
  try:
   ensure_schema()
-  with db_connection() as conn: row=conn.execute("SELECT id,email,password_hash FROM kod_users WHERE email=%s",(email,)).fetchone()
+  with db_connection() as conn: row=conn.execute("SELECT id,email,password_hash,email_verified FROM kod_users WHERE email=%s",(email,)).fetchone()
   if not row or not check_password_hash(row["password_hash"],password): return jsonify(error="Email or password is incorrect."),401
+  if not row["email_verified"]: return jsonify(error="Please verify your email first. Check your inbox or request a new verification email.",verificationRequired=True),403
   session.clear(); session["user_id"]=row["id"]; session.permanent=True
   return jsonify(user={"id":row["id"],"email":row["email"]})
  except Exception:
