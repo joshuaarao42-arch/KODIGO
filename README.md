@@ -2,160 +2,138 @@
 
 **Create. Customize. Connect.**
 
-KODIGO is a customizable QR Code Studio built with Python. It allows users to generate, personalize, preview, and export QR codes through a modern desktop application.
+KODIGO is a customizable QR Code Studio with a Windows desktop application and a web version deployable to Vercel. Create QR codes for links, text, contact cards, and Wi-Fi; personalize their appearance; preview them; and export high-quality PNG images.
 
-Designed with a clean interface and intuitive controls, KODIGO makes QR code creation simple and convenient.
+## Web app
 
-## ✨ Features
+The Vercel web version includes:
+- Link, plain text, vCard contact, and Wi-Fi QR generation.
+- Live QR preview and PNG export.
+- Foreground/background colors, six presets, and contrast guidance.
+- Square, rounded, and dot module styles.
+- Center logo uploads, logo sizing, and quiet-zone controls.
+- Standard, High, and Ultra export quality.
+- Local browser history.
+- KODIGO AI assistant powered by the Gemini Developer API free tier.
 
-- **Multiple QR Types** — Generate QR codes for URLs, plain text, contact cards (vCards), and Wi-Fi credentials.
-- **Live Preview** — See your QR code update as you modify its content and appearance.
+## Deploy to Vercel
+
+1. Import joshuaarao42-arch/KODIGO into Vercel.
+2. Keep the project root directory set to the repository root.
+3. Add this environment variable in Project Settings → Environment Variables:
+
+| Name | Value |
+|---|---|
+| GEMINI_API_KEY | Your Gemini API key from https://aistudio.google.com/app/apikey |
+
+4. Enable it for Production and Preview, then deploy.
+
+The AI assistant uses gemini-3.5-flash-lite. Its free tier has usage limits and availability can change. The API key is read only by the server and must never be placed in browser code or committed to GitHub. If the key is not configured, QR generation still works; only the AI assistant is unavailable.
+
+## Web architecture
+
+- Flask API hosted as a Vercel Python Function.
+- Existing KODIGO/payloads.py and KODIGO/qr_engine.py reused for QR payload construction and image rendering.
+- Browser history stored locally in the current browser using localStorage; it is not synced between devices.
+- Uploaded center logos are processed in memory/temporary storage and are not retained as account files.
+- No account or database is required for the web version.
+
+## Desktop application
+
+The original CustomTkinter desktop application remains available. Its local SQLite history and Windows executable workflow are unchanged.
+
+### Desktop features
+
+- **Multiple QR Types** — URLs, plain text, contact cards (vCards), and Wi-Fi credentials.
+- **Live Preview** — See the QR code update as you modify its content and appearance.
 - **Customizable Designs** — Personalize QR colors, module shapes, and add custom center logos.
-- **High-Quality Export** — Export QR codes as PNG images in Standard, High, or Ultra resolution with 300 DPI metadata.
+- **High-Quality Export** — Export PNG images in Standard, High, or Ultra resolution with 300 DPI metadata.
 - **QR Code History** — Search, reopen, export, and delete previously generated QR codes.
-- **Light & Dark Themes** — Switch between application themes to suit your preference.
+- **Light & Dark Themes** — Switch between application themes.
 - **Readability Protection** — Contrast checking and automatic high error correction when adding logos.
 
-## 🖥️ Preview
+## Preview
 
-![image alt](https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134800.png?raw=true)
-![image alt](https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134819.png?raw=true)
+![KODIGO desktop preview](https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134800.png?raw=true)
+![KODIGO desktop preview](https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134819.png?raw=true)
 
-## 🛠️ Built With
+## Built with
 
 | Technology | Purpose |
 |---|---|
-| Python | Core programming language |
-| CustomTkinter | Desktop graphical interface |
-| qrcode | QR code generation |
-| Pillow (PIL) | Image processing |
-| SQLite | Local QR code history |
-| PyInstaller | Windows executable packaging |
+| Python | Core application and API |
+| CustomTkinter | Desktop interface |
+| Flask | Vercel web API |
+| qrcode | QR generation |
+| Pillow | Image rendering and processing |
+| SQLite | Desktop QR history |
+| Browser localStorage | Web QR history |
+| Gemini Developer API | KODIGO AI assistant |
+| Vercel | Web deployment |
 
-## 📦 Installation
+## Run the desktop application locally
 
-### Requirements
+Requirements: Python 3.10 or newer.
 
-- Python 3
-- Windows (for the included executable build script)
+    git clone https://github.com/joshuaarao42-arch/KODIGO.git
+    cd KODIGO
+    py -m venv .venv
+    .\.venv\Scripts\activate
+    python -m pip install -r requirements.txt
+    python main.py
 
-### 1. Clone the Repository
+## Run the web application locally
 
-```bash
-git clone https://github.com/joshuaarao42-arch/KODIGO.git
-```
+    pip install -r requirements.txt
+    python -m flask --app api.index run --debug
 
-### 2. Navigate to the Project Directory
+Open http://127.0.0.1:5000. To enable the AI assistant locally, set GEMINI_API_KEY in your shell before starting Flask.
 
-```bash
-cd KODIGO
-```
+## Build the Windows application
 
-### 3. Create a Virtual Environment
+Run build_exe.bat. The executable is created at dist/KODIGO/KODIGO.exe.
 
-```bash
-py -m venv .venv
-```
-
-### 4. Install Dependencies
-
-```bash
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-### 5. Run the Application
-
-```bash
-.\.venv\Scripts\python.exe main.py
-```
-
-## 🏗️ Build as a Windows Application
-
-KODIGO can be packaged into a standalone Windows application using the included build script.
-
-Run:
-
-```bash
-build_exe.bat
-```
-
-Once the build process is complete, the executable will be available at:
-
-```text
-dist/KODIGO/KODIGO.exe
-```
-
-## ⌨️ Keyboard Shortcuts
+## Keyboard shortcut
 
 | Shortcut | Action |
 |---|---|
-| `Ctrl + S` | Export current QR code |
+| Ctrl + S | Export current QR code (desktop app) |
 
-## 📁 Project Structure
+## Project structure
 
-```text
-KODIGO/
-│
-├── KODIGO/
-│   ├── app.py
-│   ├── config.py
-│   ├── database.py
-│   ├── payloads.py
-│   ├── qr_engine.py
-│   │
-│   └── ui/
-│       ├── Screens
-│       ├── Forms
-│       ├── Widgets
-│       └── Theme
-│
-├── main.py
-├── make_icon.py
-├── build_exe.bat
-├── requirements.txt
-├── LICENSE
-└── README.md
-```
+    KODIGO/
+    ├── api/
+    │   ├── index.py
+    │   ├── templates/index.html
+    │   └── static/
+    │       ├── app.js
+    │       ├── styles.css
+    │       └── favicon.svg
+    ├── KODIGO/
+    │   ├── app.py
+    │   ├── config.py
+    │   ├── database.py
+    │   ├── payloads.py
+    │   ├── qr_engine.py
+    │   └── ui/
+    ├── main.py
+    ├── requirements.txt
+    ├── vercel.json
+    ├── build_exe.bat
+    └── README.md
 
-## 🔒 Data & Privacy
+## Data & privacy
 
-KODIGO stores QR code history locally using SQLite.
+The desktop version stores QR history locally in SQLite. The web version stores saved QR images in the current browser only. Browser history is not an account backup or cloud sync. Wi-Fi QR codes encode network credentials, so treat exported images as sensitive.
 
-On Windows, the database is stored at:
+## Contributing
 
-```text
-%APPDATA%\KODIGO\history.db
-```
+Contributions are welcome. Please read CONTRIBUTING.md, test affected workflows, and never commit API keys, real Wi-Fi credentials, or private contact information.
 
-No account or hosted service is required to generate QR codes.
+## Author
 
-## 🤝 Contributions
+**Joshua C. Arao** — Computer Science student at the University of Science and Technology of Southern Philippines (USTP).
 
-Contributions are welcome!
+## License
 
-If you have ideas for new features, improvements, or bug fixes, feel free to contribute. You can help improve KODIGO by:
-
-- Reporting bugs or unexpected behavior through GitHub Issues.
-- Suggesting new features and enhancements.
-- Submitting pull requests with improvements or fixes.
-- Improving documentation and overall usability.
-
-Please ensure that your changes are tested and clearly explained before submitting a pull request.
-
-Every contribution, whether big or small, is appreciated!
-
-## 👨‍💻 Author
-
-**Hi, I’m Joshua Arao, a Computer Science student at the University of Science and Technology of Southern Philippines (USTP). I enjoy building clean, polished software and learning something new with every project.**
-
-## 📄 License
-
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for more information.
-
----
-
-<p align="center">
-  KODIGO — Create. Customize. Connect.
-  <br/>
-  Made with Python.
-</p>
+MIT License. See LICENSE.
