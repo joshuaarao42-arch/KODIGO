@@ -42,7 +42,12 @@ def send_verification_email(email,token):
  link=base+"/api/verify?token="+token
  body={"from":sender,"to":[email],"subject":"Verify your KODIGO account","html":f"""<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:32px;color:#17182b"><h1 style="margin-bottom:8px">Welcome to KODIGO</h1><p>Confirm your email address to activate your account.</p><p style="margin:28px 0"><a href="{link}" style="background:#5146d8;color:#fff;padding:14px 22px;border-radius:10px;text-decoration:none;font-weight:bold">Verify email address</a></p><p>This link expires in 30 minutes. If you did not create a KODIGO account, you can ignore this email.</p><p style="color:#777;font-size:12px">KODIGO · Create. Customize. Connect.</p></div>"""}
  req=Request("https://api.resend.com/emails",data=json.dumps(body).encode(),headers={"Authorization":"Bearer "+api_key,"Content-Type":"application/json"},method="POST")
- with urlopen(req,timeout=15) as response: response.read()
+ try:
+  with urlopen(req,timeout=15) as response: response.read()
+ except HTTPError as exc:
+  detail=exc.read().decode("utf-8","replace")[:1000]
+  app.logger.error("Resend API rejected verification email: HTTP %s; response: %s",exc.code,detail)
+  raise RuntimeError(f"Resend rejected the email request (HTTP {exc.code}). Check the Resend API key, sending permissions, and test-recipient restrictions.") from exc
 def create_verification(user_id,email):
  token=secrets.token_urlsafe(32); digest=hashlib.sha256(token.encode()).hexdigest()
  with db_connection() as conn:
