@@ -36,7 +36,7 @@ def generate():
     with Image.open(BytesIO(raw_logo)) as im: im.verify()
    except (UnidentifiedImageError,OSError): raise ValueError("Choose a valid PNG, JPG, or WebP image.")
    handle=tempfile.NamedTemporaryFile(delete=False,suffix=".png"); handle.write(raw_logo); handle.close(); temp_path=handle.name; style.logo_path=temp_path
-  result=qr_engine.render(payload,style,preview_px=640); output=BytesIO(); result.image.save(output,format="PNG",dpi=(300,300),optimize=True)
+  result=qr_engine.render(payload,style,preview_px=None if data.get('export') else 640); output=BytesIO(); result.image.save(output,format="PNG",dpi=(300,300),optimize=True)
   return jsonify(image="data:image/png;base64,"+base64.b64encode(output.getvalue()).decode("ascii"),title=payloads.title_for(kind,fields),modules=result.modules,errorCorrection=result.ec_label,contrast=round(qr_engine.contrast_ratio(style.fg,style.bg),2),warnings=result.warnings)
  except qr_engine.QRDataTooLarge as exc: return jsonify(error=str(exc)),422
  except (ValueError,TypeError,binascii.Error) as exc: return jsonify(error=str(exc)),400
