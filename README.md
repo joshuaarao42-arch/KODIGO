@@ -19,24 +19,26 @@ KODIGO is a customizable QR Code Studio with a Windows desktop application and a
 
 1. Import **joshuaarao42-arch/KODIGO** into Vercel (the project is linked already if you used the existing KODIGO Vercel project).
 2. Keep the project root directory set to the repository root.
-3. Add the environment variable below in **Project Settings → Environment Variables**:
+3. Add these environment variables in **Project Settings → Environment Variables**:
 
 | Name | Value |
 |---|---|
 | GEMINI_API_KEY | Your Gemini API key from https://aistudio.google.com/app/apikey |
+| DATABASE_URL | Your Neon pooled PostgreSQL connection string |
+| FLASK_SECRET_KEY | A long, random secret used to sign login sessions |
 
 4. Enable the variable for Production and Preview, then redeploy.
 
-The AI assistant uses the Gemini 3.5 Flash-Lite model. The Gemini Developer API free tier has usage limits and model availability can change. The API key is read only by the server; never put it in browser code or commit it to GitHub. QR generation works even when the key is not configured, but the AI assistant will be unavailable.
+The AI assistant uses the Gemini 3.5 Flash-Lite model. The Gemini Developer API free tier has usage limits and model availability can change. All three values are server-side secrets; never put them in browser code or commit them to GitHub. QR generation works even when the key is not configured, but the AI assistant will be unavailable.
 
 ## Web architecture
 
 - Flask app deployed through Vercel's native Python/Flask support.
 - Existing KODIGO/payloads.py and KODIGO/qr_engine.py are reused for QR payload construction and image rendering.
 - Static assets are served from the public directory.
-- Browser history is stored locally in the current browser using localStorage; it is not synced between devices.
+- Signed-in users can save up to 100 QR images per account in Neon PostgreSQL and access them across devices. Signed-out history remains local to the browser.
 - Uploaded center logos are processed temporarily and are not retained as account files.
-- No account or database is required for the web version.
+- Neon PostgreSQL stores account records and per-user QR history. Passwords are hashed before storage; signed-in users access only their own QR codes.
 
 ## Desktop application
 

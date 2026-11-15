@@ -32,6 +32,7 @@ def ensure_schema():
   conn.execute("CREATE INDEX IF NOT EXISTS kod_qr_codes_user_created_idx ON kod_qr_codes(user_id,created_at DESC)")
  _schema_ready=True
 def current_user():
+ ensure_schema()
  uid=session.get("user_id")
  if not uid: return None
  with db_connection() as conn: return conn.execute("SELECT id,email FROM kod_users WHERE id=%s",(uid,)).fetchone()
