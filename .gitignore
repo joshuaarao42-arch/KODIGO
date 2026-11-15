@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.vercel/
+*.db
+*.sqlite3
+dist/
+build/
+*.spec
+.DS_Store
+Thumbs.db
