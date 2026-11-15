@@ -6,36 +6,36 @@ KODIGO is a customizable QR Code Studio with a Windows desktop application and a
 
 ## Web app
 
-The Vercel web version includes:
 - Link, plain text, vCard contact, and Wi-Fi QR generation.
 - Live QR preview and PNG export.
-- Foreground/background colors, six presets, and contrast guidance.
+- Foreground/background colors, six color presets, and contrast guidance.
 - Square, rounded, and dot module styles.
 - Center logo uploads, logo sizing, and quiet-zone controls.
 - Standard, High, and Ultra export quality.
-- Local browser history.
+- Browser-local QR history.
 - KODIGO AI assistant powered by the Gemini Developer API free tier.
 
 ## Deploy to Vercel
 
-1. Import joshuaarao42-arch/KODIGO into Vercel.
+1. Import **joshuaarao42-arch/KODIGO** into Vercel (the project is linked already if you used the existing KODIGO Vercel project).
 2. Keep the project root directory set to the repository root.
-3. Add this environment variable in Project Settings → Environment Variables:
+3. Add the environment variable below in **Project Settings → Environment Variables**:
 
 | Name | Value |
 |---|---|
 | GEMINI_API_KEY | Your Gemini API key from https://aistudio.google.com/app/apikey |
 
-4. Enable it for Production and Preview, then deploy.
+4. Enable the variable for Production and Preview, then redeploy.
 
-The AI assistant uses gemini-3.5-flash-lite. Its free tier has usage limits and availability can change. The API key is read only by the server and must never be placed in browser code or committed to GitHub. If the key is not configured, QR generation still works; only the AI assistant is unavailable.
+The AI assistant uses the Gemini 3.5 Flash-Lite model. The Gemini Developer API free tier has usage limits and model availability can change. The API key is read only by the server; never put it in browser code or commit it to GitHub. QR generation works even when the key is not configured, but the AI assistant will be unavailable.
 
 ## Web architecture
 
-- Flask API hosted as a Vercel Python Function.
-- Existing KODIGO/payloads.py and KODIGO/qr_engine.py reused for QR payload construction and image rendering.
-- Browser history stored locally in the current browser using localStorage; it is not synced between devices.
-- Uploaded center logos are processed in memory/temporary storage and are not retained as account files.
+- Flask app deployed through Vercel's native Python/Flask support.
+- Existing KODIGO/payloads.py and KODIGO/qr_engine.py are reused for QR payload construction and image rendering.
+- Static assets are served from the public directory.
+- Browser history is stored locally in the current browser using localStorage; it is not synced between devices.
+- Uploaded center logos are processed temporarily and are not retained as account files.
 - No account or database is required for the web version.
 
 ## Desktop application
@@ -63,7 +63,7 @@ The original CustomTkinter desktop application remains available. Its local SQLi
 |---|---|
 | Python | Core application and API |
 | CustomTkinter | Desktop interface |
-| Flask | Vercel web API |
+| Flask | Vercel web application |
 | qrcode | QR generation |
 | Pillow | Image rendering and processing |
 | SQLite | Desktop QR history |
@@ -79,13 +79,13 @@ Requirements: Python 3.10 or newer.
     cd KODIGO
     py -m venv .venv
     .\.venv\Scripts\activate
-    python -m pip install -r requirements.txt
+    python -m pip install -r requirements-desktop.txt
     python main.py
 
 ## Run the web application locally
 
-    pip install -r requirements.txt
-    python -m flask --app api.index run --debug
+    python -m pip install -r requirements.txt
+    python -m flask --app app run --debug
 
 Open http://127.0.0.1:5000. To enable the AI assistant locally, set GEMINI_API_KEY in your shell before starting Flask.
 
@@ -102,13 +102,15 @@ Run build_exe.bat. The executable is created at dist/KODIGO/KODIGO.exe.
 ## Project structure
 
     KODIGO/
-    ├── app.py\n    ├── api/
-    │   ├── index.py
-    │   ├── templates/index.html
-    │   └── static/
-    │       ├── app.js
-    │       ├── styles.css
-    │       └── favicon.svg
+    ├── app.py
+    ├── api/
+    │   └── index.py
+    ├── public/
+    │   ├── app.js
+    │   ├── styles.css
+    │   └── favicon.svg
+    ├── templates/
+    │   └── index.html
     ├── KODIGO/
     │   ├── app.py
     │   ├── config.py
@@ -118,8 +120,7 @@ Run build_exe.bat. The executable is created at dist/KODIGO/KODIGO.exe.
     │   └── ui/
     ├── main.py
     ├── requirements.txt
-    ├── vercel.json
-    ├── build_exe.bat
+    ├── requirements-desktop.txt
     └── README.md
 
 ## Data & privacy
