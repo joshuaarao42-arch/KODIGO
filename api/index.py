@@ -4,14 +4,107 @@ from io import BytesIO
 from pathlib import Path
 from urllib.error import HTTPError,URLError
 from urllib.request import Request,urlopen
-from flask import Flask,jsonify,render_template,request
+from flask import Flask,jsonify,render_template,request,session
 from PIL import Image,UnidentifiedImageError
+from werkzeug.security import generate_password_hash,check_password_hash
+import psycopg
+from psycopg.rows import dict_row
+from psycopg.errors import UniqueViolation
+import re
 from KODIGO import payloads,qr_engine
 from KODIGO.qr_engine import QRStyle
 ROOT=Path(__file__).resolve().parents[1]
 app=Flask(__name__,template_folder=str(ROOT/"templates"),static_folder=None)
 app.config["MAX_CONTENT_LENGTH"]=4*1024*1024
+app.secret_key=os.environ.get("FLASK_SECRET_KEY")
+app.config.update(SESSION_COOKIE_HTTPONLY=True,SESSION_COOKIE_SAMESITE="Lax",SESSION_COOKIE_SECURE=bool(os.environ.get("VERCEL")),PERMANENT_SESSION_LIFETIME=60*60*24*30)
+_schema_ready=False
+def db_connection():
+ url=os.environ.get("DATABASE_URL")
+ if not url: raise RuntimeError("Database is not configured.")
+ return psycopg.connect(url,connect_timeout=8,row_factory=dict_row)
+def ensure_schema():
+ global _schema_ready
+ if _schema_ready: return
+ with db_connection() as conn:
+  conn.execute("""CREATE TABLE IF NOT EXISTS kod_users (id BIGSERIAL PRIMARY KEY,email TEXT NOT NULL UNIQUE,password_hash TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+  conn.execute("""CREATE TABLE IF NOT EXISTS kod_qr_codes (id BIGSERIAL PRIMARY KEY,user_id BIGINT NOT NULL REFERENCES kod_users(id) ON DELETE CASCADE,title TEXT NOT NULL,kind TEXT NOT NULL,image TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())""")
+  conn.execute("CREATE INDEX IF NOT EXISTS kod_qr_codes_user_created_idx ON kod_qr_codes(user_id,created_at DESC)")
+ _schema_ready=True
+def current_user():
+ uid=session.get("user_id")
+ if not uid: return None
+ with db_connection() as conn: return conn.execute("SELECT id,email FROM kod_users WHERE id=%s",(uid,)).fetchone()
+@app.after_request
+def security_headers(response):
+ response.headers.setdefault("X-Content-Type-Options","nosniff")
+ response.headers.setdefault("Referrer-Policy","strict-origin-when-cross-origin")
+ response.headers.setdefault("X-Frame-Options","DENY")
+ return response
 KINDS={"url","text","contact","wifi"}
+@app.get("/api/account")
+def account():
+ try:
+  user=current_user()
+  return jsonify(user={"id":user["id"],"email":user["email"]} if user else None)
+ except Exception:
+  app.logger.exception("Account lookup failed"); return jsonify(error="Account service is temporarily unavailable."),503
+
+@app.post("/api/signup")
+def signup():
+ if not app.secret_key: return jsonify(error="Session security is not configured."),503
+ data=request.get_json(silent=True) or {}; email=str(data.get("email","")).strip().lower(); password=str(data.get("password",""))
+ if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+",email) or len(email)>254: return jsonify(error="Enter a valid email address."),400
+ if len(password)<10 or len(password)>128: return jsonify(error="Use a password between 10 and 128 characters."),400
+ try:
+  ensure_schema()
+  with db_connection() as conn:
+   row=conn.execute("INSERT INTO kod_users(email,password_hash) VALUES(%s,%s) RETURNING id,email",(email,generate_password_hash(password))).fetchone()
+  session.clear(); session["user_id"]=row["id"]; session.permanent=True
+  return jsonify(user={"id":row["id"],"email":row["email"]}),201
+ except UniqueViolation: return jsonify(error="An account with that email already exists. Please log in."),409
+ except Exception:
+  app.logger.exception("Signup failed"); return jsonify(error="Couldn't create your account. Please try again."),503
+
+@app.post("/api/login")
+def login():
+ if not app.secret_key: return jsonify(error="Session security is not configured."),503
+ data=request.get_json(silent=True) or {}; email=str(data.get("email","")).strip().lower(); password=str(data.get("password",""))
+ try:
+  ensure_schema()
+  with db_connection() as conn: row=conn.execute("SELECT id,email,password_hash FROM kod_users WHERE email=%s",(email,)).fetchone()
+  if not row or not check_password_hash(row["password_hash"],password): return jsonify(error="Email or password is incorrect."),401
+  session.clear(); session["user_id"]=row["id"]; session.permanent=True
+  return jsonify(user={"id":row["id"],"email":row["email"]})
+ except Exception:
+  app.logger.exception("Login failed"); return jsonify(error="Login is temporarily unavailable."),503
+
+@app.post("/api/logout")
+def logout():
+ session.clear(); return jsonify(ok=True)
+
+@app.route("/api/history",methods=["GET","POST","DELETE"])
+def history_api():
+ user=current_user()
+ if not user: return jsonify(error="Log in to access your saved QR codes."),401
+ try:
+  ensure_schema()
+  with db_connection() as conn:
+   if request.method=="GET":
+    rows=conn.execute("SELECT id,title,kind,image,created_at FROM kod_qr_codes WHERE user_id=%s ORDER BY created_at DESC LIMIT 100",(user["id"],)).fetchall()
+    return jsonify(items=[{"id":str(x["id"]),"title":x["title"],"kind":x["kind"],"image":x["image"],"date":x["created_at"].isoformat()} for x in rows])
+   if request.method=="POST":
+    data=request.get_json(silent=True) or {}; title=str(data.get("title","QR code"))[:200]; kind=str(data.get("kind","url")); image=data.get("image","")
+    if kind not in KINDS or not isinstance(image,str) or not image.startswith("data:image/png;base64,") or len(image)>2500000: return jsonify(error="Invalid QR history item."),400
+    row=conn.execute("INSERT INTO kod_qr_codes(user_id,title,kind,image) VALUES(%s,%s,%s,%s) RETURNING id",(user["id"],title,kind,image)).fetchone()
+    return jsonify(id=str(row["id"])),201
+   item_id=request.args.get("id")
+   if item_id: conn.execute("DELETE FROM kod_qr_codes WHERE id=%s AND user_id=%s",(item_id,user["id"]))
+   else: conn.execute("DELETE FROM kod_qr_codes WHERE user_id=%s",(user["id"],))
+   return jsonify(ok=True)
+ except Exception:
+  app.logger.exception("QR history operation failed"); return jsonify(error="Couldn't access saved QR history."),503
+
 @app.get("/")
 def home(): return render_template("index.html")
 @app.get("/api/health")
