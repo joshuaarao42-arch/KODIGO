@@ -76,7 +76,7 @@ Create an account using a username and password to save QR codes to your account
 
 <p align="center">
   <a href="https://kodigo-joshy3.vercel.app">
-    <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/QR_STUDIO.png?raw=true" alt="KODIGO web application — QR studio" width="82%">
+    <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/QR_STUDIO.png?raw=true" width="82%">
   </a>
 </p>
 <p align="center">
