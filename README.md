@@ -1,142 +1,229 @@
 # KODIGO — QR Code Studio
 
-**Create. Customize. Connect.**
+<p align="center">
+  <strong>Create. Customize. Connect.</strong><br>
+  A QR code studio for creating useful, personalized QR codes on desktop or in your browser.
+</p>
 
-KODIGO is a customizable QR Code Studio with a Windows desktop application and a web version deployable to Vercel. Create QR codes for links, text, contact cards, and Wi-Fi; personalize their appearance; preview them; and export high-quality PNG images.
+<p align="center">
+  <a href="https://kodigo-joshy3.vercel.app"><img src="https://img.shields.io/badge/Live%20Web%20App-Open%20KODIGO-5865E9?style=for-the-badge" alt="Open KODIGO web app"></a>
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10 or newer">
+  <img src="https://img.shields.io/badge/License-MIT-2EA44F?style=for-the-badge" alt="MIT License">
+</p>
 
-## Web app
+---
 
-- Link, plain text, vCard contact, and Wi-Fi QR generation.
-- Live QR preview and PNG export.
-- Foreground/background colors, six color presets, and contrast guidance.
+## Overview
+
+**KODIGO** is a customizable QR Code Studio available as a Python desktop application and a web application. It helps you turn links, messages, contact details, and Wi-Fi information into QR codes that are easy to preview, personalize, and share.
+
+Choose a QR type, adjust its appearance, add an optional center logo, and export the result as a PNG. The web version also includes account-based QR history and **KODIGO AI**, an assistant for QR-related questions.
+
+## Try the web app
+
+**[Launch KODIGO](https://kodigo-joshy3.vercel.app)**
+
+Create an account using a username and password to save QR codes to your account and access them across devices. Email registration and email verification are not required.
+
+## Features
+
+### QR code creation
+
+| QR type | What it can contain |
+|---|---|
+| **Link** | Website URLs and other web links |
+| **Text** | Notes, messages, and other plain text |
+| **Contact** | Contact details formatted as a vCard |
+| **Wi-Fi** | Network name, password, security type, and hidden-network setting |
+
+### Customize your QR code
+
+- Live preview while editing.
+- Foreground and background color controls with ready-made color presets.
 - Square, rounded, and dot module styles.
-- Center logo uploads, logo sizing, and quiet-zone controls.
-- Standard, High, and Ultra export quality.
-- Browser-local QR history.
-- KODIGO AI assistant powered by the Gemini Developer API free tier.
+- Optional center logo upload (PNG, JPG, or WebP).
+- Adjustable logo size and quiet zone.
+- Contrast guidance to help create scannable designs.
+- Standard, High, and Ultra PNG export quality.
 
-## Deploy to Vercel
+### Web app features
 
-1. Import **joshuaarao42-arch/KODIGO** into Vercel (the project is linked already if you used the existing KODIGO Vercel project).
-2. Keep the project root directory set to the repository root.
-3. Add these environment variables in **Project Settings → Environment Variables**:
+- Responsive interface for desktop and mobile screens.
+- Username-and-password sign up and login.
+- Passwords are stored as secure hashes, not plain text.
+- Save up to **100 QR codes** to your signed-in account.
+- Access saved QR history across devices.
+- Browser-local history when signed out.
+- **KODIGO AI** assistant for QR code tips and practical guidance.
 
-| Name | Value |
+### Desktop app features
+
+- Native desktop interface built with CustomTkinter.
+- Local QR history with search, reopen, export, and delete options.
+- Light and dark appearance modes.
+- PNG export with 300 DPI metadata.
+- QR readability protection, including high error correction when a center logo is used.
+
+## Screenshots
+
+### Desktop application
+
+<p align="center">
+  <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134800.png?raw=true" alt="KODIGO desktop application — main interface" width="82%">
+</p>
+<p align="center">
+  <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134819.png?raw=true" alt="KODIGO desktop application — QR code preview" width="82%">
+</p>
+
+## Technology stack
+
+| Technology | Role in the project |
 |---|---|
-| GEMINI_API_KEY | Your Gemini API key from https://aistudio.google.com/app/apikey |
-| DATABASE_URL | Your Neon pooled PostgreSQL connection string |
-| FLASK_SECRET_KEY | A long, random secret used to sign login sessions |
+| **Python** | Main application language |
+| **CustomTkinter** | Desktop user interface |
+| **Flask** | Web application and API |
+| **qrcode** | QR code generation |
+| **Pillow** | Image rendering and processing |
+| **SQLite** | Local desktop history |
+| **PostgreSQL (Neon)** | Web accounts and cloud QR history |
+| **JavaScript, HTML, CSS** | Web interface and interactions |
+| **Gemini Developer API** | KODIGO AI assistant |
+| **Vercel** | Web application hosting |
 
-4. Enable the variable for Production and Preview, then redeploy.
+## Run KODIGO locally
 
-The AI assistant uses the Gemini 3.5 Flash-Lite model. The Gemini Developer API free tier has usage limits and model availability can change. All three values are server-side secrets; never put them in browser code or commit them to GitHub. QR generation works even when the key is not configured, but the AI assistant will be unavailable.
+### 1. Clone the repository
 
-## Web architecture
+```bash
+git clone https://github.com/joshuaarao42-arch/KODIGO.git
+cd KODIGO
+```
 
-- Flask app deployed through Vercel's native Python/Flask support.
-- Existing KODIGO/payloads.py and KODIGO/qr_engine.py are reused for QR payload construction and image rendering.
-- Static assets are served from the public directory.
-- Signed-in users can save up to 100 QR images per account in Neon PostgreSQL and access them across devices. Signed-out history remains local to the browser.
-- Uploaded center logos are processed temporarily and are not retained as account files.
-- Neon PostgreSQL stores account records and per-user QR history. Passwords are hashed before storage; signed-in users access only their own QR codes.
+### 2. Set up the desktop application
 
-## Desktop application
+Python 3.10 or newer is recommended.
 
-The original CustomTkinter desktop application remains available. Its local SQLite history and Windows executable workflow are unchanged.
+```bash
+py -m venv .venv
+.\.venv\Scripts\activate
+python -m pip install -r requirements-desktop.txt
+python main.py
+```
 
-### Desktop features
+### 3. Run the web application
 
-- **Multiple QR Types** — URLs, plain text, contact cards (vCards), and Wi-Fi credentials.
-- **Live Preview** — See the QR code update as you modify its content and appearance.
-- **Customizable Designs** — Personalize QR colors, module shapes, and add custom center logos.
-- **High-Quality Export** — Export PNG images in Standard, High, or Ultra resolution with 300 DPI metadata.
-- **QR Code History** — Search, reopen, export, and delete previously generated QR codes.
-- **Light & Dark Themes** — Switch between application themes.
-- **Readability Protection** — Contrast checking and automatic high error correction when adding logos.
+Install the web dependencies:
 
-## Preview
+```bash
+python -m pip install -r requirements.txt
+```
 
-![KODIGO desktop preview](https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134800.png?raw=true)
-![KODIGO desktop preview](https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134819.png?raw=true)
+Set the environment variables required by the services you want to use:
 
-## Built with
-
-| Technology | Purpose |
+| Variable | Purpose |
 |---|---|
-| Python | Core application and API |
-| CustomTkinter | Desktop interface |
-| Flask | Vercel web application |
-| qrcode | QR generation |
-| Pillow | Image rendering and processing |
-| SQLite | Desktop QR history |
-| Browser localStorage | Web QR history |
-| Gemini Developer API | KODIGO AI assistant |
-| Vercel | Web deployment |
+| `DATABASE_URL` | Neon PostgreSQL connection string for account and cloud-history features |
+| `FLASK_SECRET_KEY` | Long, random secret used to sign login sessions |
+| `GEMINI_API_KEY` | Gemini API key for the KODIGO AI assistant |
 
-## Run the desktop application locally
+Then start Flask:
 
-Requirements: Python 3.10 or newer.
+```bash
+python -m flask --app app run --debug
+```
 
-    git clone https://github.com/joshuaarao42-arch/KODIGO.git
-    cd KODIGO
-    py -m venv .venv
-    .\.venv\Scripts\activate
-    python -m pip install -r requirements-desktop.txt
-    python main.py
+Open **http://127.0.0.1:5000** in your browser.
 
-## Run the web application locally
+> **Note:** QR generation can be used without configuring the AI key. Account sign up, login, and cloud history require a working PostgreSQL connection and session secret. The AI assistant requires a valid Gemini API key. Keep all secrets in environment variables; never commit them to the repository.
 
-    python -m pip install -r requirements.txt
-    python -m flask --app app run --debug
+## Deploy the web app to Vercel
 
-Open http://127.0.0.1:5000. To enable the AI assistant locally, set GEMINI_API_KEY in your shell before starting Flask.
+1. Import [joshuaarao42-arch/KODIGO](https://github.com/joshuaarao42-arch/KODIGO) into Vercel.
+2. Set the project root directory to the repository root.
+3. Add the environment variables listed above under **Project Settings → Environment Variables**.
+4. Enable the variables for the environments you plan to use.
+5. Deploy or redeploy the project.
 
-## Build the Windows application
+The live project is available at **[kodigo-joshy3.vercel.app](https://kodigo-joshy3.vercel.app)**.
 
-Run build_exe.bat. The executable is created at dist/KODIGO/KODIGO.exe.
+The Gemini Developer API has usage limits. Availability and limits depend on the selected model and Google's current API policies.
+
+## Build the Windows desktop application
+
+On Windows, run:
+
+```bat
+build_exe.bat
+```
+
+The packaged application is created at:
+
+```
+dist/KODIGO/KODIGO.exe
+```
 
 ## Keyboard shortcut
 
-| Shortcut | Action |
-|---|---|
-| Ctrl + S | Export current QR code (desktop app) |
+| Shortcut | Action | Version |
+|---|---|---|
+| `Ctrl + S` | Export the current QR code | Desktop |
 
 ## Project structure
 
-    KODIGO/
-    ├── app.py
-    ├── api/
-    │   └── index.py
-    ├── public/
-    │   ├── app.js
-    │   ├── styles.css
-    │   └── favicon.svg
-    ├── templates/
-    │   └── index.html
-    ├── KODIGO/
-    │   ├── app.py
-    │   ├── config.py
-    │   ├── database.py
-    │   ├── payloads.py
-    │   ├── qr_engine.py
-    │   └── ui/
-    ├── main.py
-    ├── requirements.txt
-    ├── requirements-desktop.txt
-    └── README.md
+```
+KODIGO/
+├── api/
+│   └── index.py              # Flask API for the Vercel deployment
+├── public/
+│   ├── app.js                # Web app interactions
+│   ├── styles.css            # Web app styles
+│   └── favicon.svg           # KODIGO logo
+├── templates/
+│   └── index.html            # Web app interface
+├── KODIGO/
+│   ├── app.py                # Desktop application
+│   ├── config.py
+│   ├── database.py           # Desktop SQLite operations
+│   ├── payloads.py           # QR content formatting
+│   ├── qr_engine.py          # QR rendering
+│   └── ui/                   # Desktop interface components
+├── main.py                   # Desktop application entry point
+├── app.py                    # Local Flask entry point
+├── requirements.txt          # Web dependencies
+├── requirements-desktop.txt  # Desktop dependencies
+├── build_exe.bat             # Windows executable build script
+└── README.md
+```
 
-## Data & privacy
+## Privacy and security notes
 
-The desktop version stores QR history locally in SQLite. The web version stores saved QR images in the current browser only. Browser history is not an account backup or cloud sync. Wi-Fi QR codes encode network credentials, so treat exported images as sensitive.
+- Desktop QR history is stored locally in SQLite.
+- Signed-in web users' saved QR codes are stored in their account in PostgreSQL. Signed-out history is kept in that browser's local storage.
+- Account passwords are hashed before they are stored.
+- Uploaded center logos are processed for QR generation and are not saved as account files.
+- A Wi-Fi QR code contains the network details encoded into it. Only share it with people you trust.
+- Never commit API keys, database connection strings, passwords, real Wi-Fi credentials, or private contact details.
 
 ## Contributing
 
-Contributions are welcome. Please read CONTRIBUTING.md, test affected workflows, and never commit API keys, real Wi-Fi credentials, or private contact information.
+Contributions, suggestions, and bug reports are welcome.
+
+1. Fork the repository.
+2. Create a branch for your change.
+3. Make your changes and test the affected features.
+4. Open a pull request with a clear explanation of the update.
+
+Please do not include secrets or private information in commits, screenshots, or test data.
 
 ## Author
 
-**Joshua C. Arao** — Computer Science student at the University of Science and Technology of Southern Philippines (USTP).
+**Joshua C. Arao**  
+Computer Science student  
+University of Science and Technology of Southern Philippines (USTP)
+
+- GitHub: [@joshuaarao42-arch](https://github.com/joshuaarao42-arch)
+- LinkedIn: [Joshua C. Arao](https://www.linkedin.com/in/arao-joshua-c-a60a67449/)
 
 ## License
 
-MIT License. See LICENSE.
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
