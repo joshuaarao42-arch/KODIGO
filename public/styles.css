@@ -98,4 +98,4 @@ button:not(:disabled):active{transform:translateY(1px) scale(.985)}
 }
 
 /* Keep conditional auth controls hidden even when button styles are present. */
-#auth-resend[hidden],#auth-form[hidden]{display:none!important}
+#auth-form[hidden]{display:none!important}
