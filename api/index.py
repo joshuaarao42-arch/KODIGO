@@ -45,6 +45,7 @@ def client_ip():
  return (forwarded.split(",")[-1].strip() if forwarded else request.remote_addr or "unknown")[:64]
 
 def rate_limit(scope,limit,window_seconds,subject=""):
+ ensure_schema()
  now=int(time.time()); window_start=(now//window_seconds)*window_seconds
  identity=hashlib.sha256(f"{scope}:{client_ip()}:{subject}".encode()).hexdigest()
  with db_connection() as conn:
