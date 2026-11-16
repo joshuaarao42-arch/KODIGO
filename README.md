@@ -10,8 +10,10 @@
 </p>
 
 <p align="center">
-  <a href="https://kodigo-joshy3.vercel.app"><img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/QR_STUDIO.png?raw=true" alt="Open KODIGO web app"></a>
-  <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-11-16%20105447.png?raw=true" alt="Python 3.10 or newer">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10 or newer">
+  <img src="https://img.shields.io/badge/Flask-Web%20App-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask web app">
+  <img src="https://img.shields.io/badge/CustomTkinter-Desktop%20UI-4B72B8?style=for-the-badge" alt="CustomTkinter desktop UI">
+  <img src="https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Deployed on Vercel">
   <img src="https://img.shields.io/badge/License-MIT-2EA44F?style=for-the-badge" alt="MIT License">
 </p>
 
@@ -69,6 +71,17 @@ Create an account using a username and password to save QR codes to your account
 - QR readability protection, including high error correction when a center logo is used.
 
 ## Screenshots
+
+### Web application
+
+<p align="center">
+  <a href="https://kodigo-joshy3.vercel.app">
+    <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/QR_STUDIO.png?raw=true" alt="KODIGO web application — QR studio" width="82%">
+  </a>
+</p>
+<p align="center">
+  <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-11-16%20105447.png?raw=true" alt="KODIGO web application screenshot" width="82%">
+</p>
 
 ### Desktop application
 
