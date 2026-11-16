@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/joshuaarao42-arch/KODIGO/main/public/favicon.svg" alt="KODIGO logo" width="120">
 </p>
 
-# KODIGO — QR Code Studio
+<h1 align="center">KODIGO — QR Code Studio</h1>
 
 <p align="center">
   <strong>Create. Customize. Connect.</strong><br>
