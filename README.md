@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://kodigo-joshy3.vercel.app"><img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/QR_STUDIO.png?raw=true" alt="Open KODIGO web app"></a>
-  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10 or newer">
+  <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-11-16%20105447.png?raw=true" alt="Python 3.10 or newer">
   <img src="https://img.shields.io/badge/License-MIT-2EA44F?style=for-the-badge" alt="MIT License">
 </p>
 
