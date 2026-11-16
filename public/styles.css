@@ -99,3 +99,10 @@ button:not(:disabled):active{transform:translateY(1px) scale(.985)}
 
 /* Keep conditional auth controls hidden even when button styles are present. */
 #auth-form[hidden]{display:none!important}
+
+
+/* Prevent long saved QR URLs from overflowing their history cards. */
+.history-list article{min-width:0;overflow:hidden}
+.history-list article img{flex:0 0 80px}
+.history-list article div{flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word}
+.history-list article b{max-width:100%;overflow-wrap:anywhere;word-break:break-word}
