@@ -83,15 +83,6 @@ Create an account using a username and password to save QR codes to your account
   <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-11-16%20105447.png?raw=true" alt="KODIGO web application screenshot" width="82%">
 </p>
 
-### Desktop application
-
-<p align="center">
-  <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134800.png?raw=true" alt="KODIGO desktop application — main interface" width="82%">
-</p>
-<p align="center">
-  <img src="https://github.com/joshuaarao42-arch/KODIGO/blob/main/IMAGES%20(KODIGO)/Screenshot%202026-10-31%20134819.png?raw=true" alt="KODIGO desktop application — QR code preview" width="82%">
-</p>
-
 ## Technology stack
 
 | Technology | Role in the project |
