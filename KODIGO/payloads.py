@@ -29,6 +29,8 @@ def _build_text(f: dict) -> str:
 def _v(value: str) -> str:
     return (
         value.replace("\\", "\\\\")
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
         .replace("\n", "\\n")
         .replace(",", "\\,")
         .replace(";", "\\;")
@@ -58,7 +60,7 @@ def _build_contact(f: dict) -> str:
     if _s(f, "email"):
         lines.append(f"EMAIL;TYPE=INTERNET:{_v(_s(f, 'email'))}")
     if _s(f, "website"):
-        lines.append(f"URL:{_s(f, 'website')}")
+        lines.append(f"URL:{_v(_s(f, 'website'))}")
     if _s(f, "address"):
         lines.append(f"ADR;TYPE=WORK:;;{_v(_s(f, 'address'))};;;;")
     lines.append("END:VCARD")
